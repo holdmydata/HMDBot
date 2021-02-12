@@ -1,5 +1,6 @@
 ###Following the freeCodeCamp.org Tweet Visualization and Sentiment Analysis in Python - Full Tutorial ###
 
+from typing import Hashable
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler, Stream, Cursor, API
 import pandas as pd
@@ -8,10 +9,11 @@ import cred
 
 ##Twitter Client##
 class TwitterClient():
-    def __init__(self, twitter_user=None, num_friends=None):
+    def __init__(self, hash_tag_list = None, twitter_user=None, num_friends=None):
         self.auth = TwitterAuthenticator().authenticate_twitter_app()
         self.twitter_client = API(self.auth)
         self.twitter_user = twitter_user
+        self.hash_tag_list = hash_tag_list
 
     def get_user_timeline_tweets(self, num_tweets):
         tweets = []
@@ -30,6 +32,14 @@ class TwitterClient():
         for tweet in Cursor(self.twitter_client.home_timeline, id=self.twitter_user).items(num_tweets):
             home_timeline_tweets.append(tweet)
         return home_timeline_tweets
+    
+    def get_tweets(self, hash_tag_list):
+        print("Getting Tweets")
+        tweets = []
+        for tweet in self.twitter_client.search(q=hash_tag_list, lang="en", rpp=10):
+            tweets.append(tweet)
+            print(tweet)
+            return tweets
 
 ###AUTH CLASS###
 class TwitterAuthenticator():
@@ -78,9 +88,10 @@ class TwitterListener(StreamListener):
 if __name__ == "__main__":
     hash_tag_list = ['salads','salad','Taylor Farms']
     fetched_tweets_filename = "tweets.json"
+    get_tweets = TwitterClient().get_tweets('salad')
 
-    twitter_client = TwitterClient('ElonMusk')
-    print(twitter_client.get_user_timeline_tweets(1))
+    # twitter_client = TwitterClient('ElonMusk')
+    # print(twitter_client.get_user_timeline_tweets(1))
 
 
     #twitter_streamer = TwitterStreamer()
